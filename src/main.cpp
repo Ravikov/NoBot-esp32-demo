@@ -1,0 +1,56 @@
+#include <Arduino.h>
+#include "wifiConnect.h"
+#include "fliker.h"
+#include "webSocketManager.h"
+#include "../lib/config.h"
+#include "fileOperate.h"
+
+#include <SPIFFS.h>
+
+WsCls wsRunner;
+
+void setup() {
+  // 初始化串口
+  Serial.begin(115200);
+
+  // 初始化文件系统
+  FileOperate* f = new FileOperate("");
+  f->setUp();
+  delete f;
+  
+  flicker_once(white_led, 1000);
+  flicker_once(red_led, 1000);
+  flicker_once(green_led, 1000);
+
+  Serial.println("=== 文件系统诊断 ===");
+
+  if (!SPIFFS.begin(true)) {
+      Serial.println("SPIFFS 挂载失败");
+      return;
+  }
+
+  File root = SPIFFS.open("/");
+  Serial.println("根目录文件列表:");
+  File file = root.openNextFile();
+  while (file) {
+      Serial.printf("  %s (大小: %d 字节)\n", file.name(), file.size());
+      file = root.openNextFile();
+  }
+  root.close();
+
+  Serial.println("=== 诊断结束 ===");
+
+  Serial.println("starting...");
+
+  pinMode(48, OUTPUT);
+  digitalWrite(48, LOW);
+
+  connectWifi(wifi_ssid, wifi_password, green_led);
+  delay(300);
+  
+}
+
+void loop() {
+  wsRunner.webSocketRun();
+  delay(800);
+}

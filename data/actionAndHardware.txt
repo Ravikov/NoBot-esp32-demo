@@ -1,0 +1,9 @@
+编号在每一类内自前向后由0递加
+action:
+    LED_GLOW   #点亮led,编号0
+    LED_OUT    #熄灭led,编号1
+    LED_BLINK  #闪烁led
+hardware:
+    RED_LED    #红色led,编号0
+    GREEN_LED  #绿色led
+    WHILE_LED  #白色
