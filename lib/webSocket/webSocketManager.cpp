@@ -9,7 +9,7 @@ String action_table;
 String action_table_msg;
 
 WsCls::WsCls()
-    : _is_connecting(false),_fragment_cache(""){
+    : _is_connecting(false), _fragment_cache(""), _last_connect_attempt(0){
 
         _ws_obj.onEvent([this](WStype_t type, uint8_t* payload, size_t length){
                 _webSocketEvent(type, payload, length);
@@ -83,12 +83,14 @@ void WsCls::_webSocketEvent(WStype_t type, uint8_t* payload, size_t length){
         {
             Serial.println("ws连接断开，尝试重连...");
             flicker_many_time(red_led, 500, 3);
+            _is_connecting = false;  // 允许下次重试
             break;
         }
         case WStype_ERROR:
         {
             Serial.println("ws连接出错");
             flicker_many_time(red_led, 500, 3);
+            _is_connecting = false;  // 允许下次重试
             break;
         }
         default:{
@@ -99,13 +101,19 @@ void WsCls::_webSocketEvent(WStype_t type, uint8_t* payload, size_t length){
 
 void WsCls::webSocketRun(){
 
-    if (! _ws_obj.isConnected() && ! _is_connecting){
-        Serial.println("尝试连接到ws服务端...");
-        _is_connecting = true;
-        _ws_obj.begin(_uri, _port, _web_path);
-        delay(5000);
+    if (! _ws_obj.isConnected()){
+        // 未连接且不在连接中 → 发起连接
+        if (!_is_connecting) {
+            Serial.println("尝试连接到ws服务端...");
+            _is_connecting = true;
+            _ws_obj.begin(_uri, _port, _web_path);
+        }
+    } else {
+        // 已连接 → 重置状态
+        _is_connecting = false;
     }
     
+    // 每次必须频繁调用 loop() 处理协议事件
     _ws_obj.loop();
 
 }

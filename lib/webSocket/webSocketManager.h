@@ -20,6 +20,7 @@ private:
     bool _is_connecting;
     String _fragment_cache;
     int _port;
+    unsigned long _last_connect_attempt;
 
     void _webSocketEvent(WStype_t type, uint8_t* payload, size_t length);
 };

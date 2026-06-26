@@ -52,5 +52,5 @@ void setup() {
 
 void loop() {
   wsRunner.webSocketRun();
-  delay(800);
+  delay(10);  // 仅延迟10ms，确保 loop() 高频调用
 }
