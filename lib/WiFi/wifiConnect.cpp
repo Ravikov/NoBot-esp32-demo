@@ -2,6 +2,7 @@
 #include <WiFi.h>
 #include "wifiConnect.h"
 #include "fliker.h"
+#include "config.h"
 
 void connectWifi(const char* ssid,const char*pswd,int led_pin){
 
@@ -14,13 +15,14 @@ void connectWifi(const char* ssid,const char*pswd,int led_pin){
         if (WiFi.status() == WL_CONNECT_FAILED){
             Serial.println("");
             Serial.println("连接失败");
+            flicker_many_time(yellow_led, 200, 20);
             return;
         }
         Serial.printf(".");
         delay(500);
     }
-    flicker_many_time(led_pin, 1000, 3);
-    flicker_many_time(led_pin, 200, 5);
+    flicker_many_time(led_pin, 1000, 2);
+    flicker_many_time(led_pin, 200, 3);
     Serial.println("");
     Serial.printf("连接成功,本机IP: ");
     Serial.println(WiFi.localIP());

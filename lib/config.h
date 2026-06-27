@@ -5,6 +5,7 @@
 extern const int red_led;
 extern const int green_led;
 extern const int white_led;
+extern const int yellow_led;
 
 // WiFi 配置（字符串，用 extern 声明）
 extern const char* wifi_ssid;
@@ -14,5 +15,16 @@ extern const char* wifi_password;
 extern const char* ws_uri;
 extern const int ws_port;
 extern const char* ws_path;
+
+// lcd屏幕配置
+typedef struct
+{
+    int sda_pin;
+    int scl_pin;
+    int width;
+    int height;
+} oledConfig;
+extern oledConfig oled_screen;
+#define OLED_ADDR 0x3c
 
 #endif

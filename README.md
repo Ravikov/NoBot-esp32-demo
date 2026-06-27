@@ -1,17 +1,15 @@
 # NoBot-Body — ESP32-S3 躯体控制固件
 
-基于 PlatformIO + Arduino 框架的 ESP32-S3 固件，通过 WebSocket 接收远程指令，控制板载 LED（红/绿/白）的执行动作。
+基于 PlatformIO + Arduino 框架的 ESP32-S3 固件，通过 WebSocket 接收远程指令，控制GPIO设备执行动作。
 
 > 本项目可选择配合 [github/Ravikov/NoBot](https://github.com/Ravikov/NoBot) 使用，实现更便捷的控制。
 
-## 硬件需求
+## 硬件需求(可自行调整)
 
 - **开发板**: ESP32-S3-DevKitC-1 (N8, 8MB Flash)
 - **外设**: 3 个 LED（红、绿、白），通过 GPIO 控制
 
 > 引脚定义在 `src/config.cpp` 中，可按需修改。
-
-由于我所用的劣质开发板板载LED(GPIO48)不太稳定,所以我在`src/main.cpp`写了上电默认拉低,各位可自行调整
 
 ## 快速开始
 
@@ -24,8 +22,8 @@ pip install platformio
 ### 2. 克隆本仓库
 
 ```bash
-git clone <repo-url>
-cd NoBot-Body-ESP32-s3-c1-demo
+git clone https://github.com/Ravikov/NoBot-esp32-demo
+cd NoBot-esp32-demo
 ```
 
 ### 3. 配置 WiFi 和 WebSocket
@@ -37,19 +35,24 @@ cd NoBot-Body-ESP32-s3-c1-demo
 ```cpp
 #include "config.h"
 
-// 引脚定义(示例,可自行更改GPIO)
+// 引脚定义(可自行配置)
 const int red_led = 13;
 const int green_led = 18;
 const int white_led = 17;
+const int yellow_led = 40;
 
 // WiFi 配置
-const char* wifi_ssid = "你的WiFi名称";
-const char* wifi_password = "你的WiFi密码";
+const char* wifi_ssid = "360WiFi-2CFF";
+const char* wifi_password = "123456789";
 
 // WebSocket 配置
-const char* ws_uri = "x.x.x.x";    // ws服务器地址
-const int ws_port = 8888;              // ws端口号
-const char* ws_path = "";              // 路径（可选）
+const char* ws_uri = "192.168.0.xxx";
+const int ws_port = 8888;
+const char* ws_path = "/";
+
+// 初始化 OLED 配置(依次是sda引脚,scl引脚,宽度,高度)
+oledConfig oled_screen = { 12, 46, 128, 64 };
+// ADDR请于lib/config.h配置,默认0x3c,兼容一般的esp32
 ```
 
 ### 4. 编译并烧录
@@ -60,33 +63,38 @@ pio run --target upload
 
 首次编译会自动下载依赖（ArduinoJson、WebSocketsClient 等）。
 
-### 5. （可选）上传文件系统数据
+### 5. 上传动作表文件系统数据
 
 ```bash
-pio run --target uploadfs
+pio run -t uploadfs
 ```
 
-`data/actionAndHardware.txt` 定义了动作和硬件的枚举映射，固件启动时会挂载 SPIFFS 读取。
+`data/actionAndHardware.txt` 定义了动作和硬件的枚举映射，固件启动时会挂载 SPIFFS 读取,并发送给ws服务端,服务端便可得到动作与硬件的配置信息,**务必要上传,否则服务端无法获取可用动作与硬件**.
+
+## 备注
+1. 由于我所用的劣质开发板板载LED(GPIO48)不太稳定,所以我在`src/main.cpp`写了上电默认拉低,各位可自行调整
+2. 项目自带动作有: 四色LED亮起,熄灭闪烁. OLED屏幕(128*64)显示,`lib/execute.cpp`内可自行编写更多动作
 
 ## 工作原理
+
 
 ```
 远程服务器 (WebSocket)
         ↕  JSON 指令
    ┌───────────────┐
    │  ESP32-S3     │
-   │  NoBot-Body   │
+   │  NoBot-esp32  │
    │               │
    │  WiFi ←→ 指令 │
-   │  解析 → 执行  │
+   │  解析 → 执行   │
    └───────┬───────┘
            ↓
-     红/绿/白 LED
+        各类执行器
 ```
 
-1. 上电后依次闪烁红/绿/白 LED 自检
-2. 自动连接 WiFi（绿色 LED 闪烁表示联网中）
-3. 连接 WebSocket 服务器，等待指令
+1. 上电后依次闪烁 LED 自检
+2. 自动连接 WiFi（绿色 LED 闪烁表示联网中, OLED屏幕也会显示connecting）
+3. 连接 WebSocket 服务器, 发送动作表, 等待指令
 4. 收到 JSON 指令后解析 `action` + `hardware`，驱动对应 LED
 
 ## WebSocket 协议
@@ -116,6 +124,7 @@ pio run --target uploadfs
 | `RED_LED` | GPIO 13 |
 | `GREEN_LED` | GPIO 18 |
 | `WHITE_LED` | GPIO 17 |
+| `YELLOW_LED` | GPIO 40 |
 
 > 枚举定义在 `lib/control/execute/execute.h`，与 `data/actionAndHardware.txt` 中的顺序需保持一致。
 
@@ -142,25 +151,15 @@ pio run --target uploadfs
 
 ## 自定义扩展
 
-本项目设计为高可调性固件，各模块均可按需修改，不局限于现有的 3 个 LED。
+本项目设计为高可调性固件，各模块均可按需修改，不局限于现有的 LED 与 OLED屏幕 。
 
 ### 增加更多 LED / 硬件
 
-1. 在 `lib/control/execute/execute.h` 的 `Hardware` 枚举末尾添加新项：
-   ```cpp
-   enum Hardware {
-       RED_LED,
-       GREEN_LED,
-       WHITE_LED,
-       BLUE_LED,    // 新增
-       BUZZER       // 新增
-   };
-   ```
-2. 在 `hardware_list[]` 数组中按**相同顺序**填写对应 GPIO 引脚：
+1. 在 `hardware_list[]` 数组中按**相同顺序**填写对应 GPIO 引脚：
    ```cpp
    const int hardware_list[] = {13, 18, 17, 19, 27};
    ```
-3. 在 `data/actionAndHardware.txt` 中添加对应条目：
+2. 在 `data/actionAndHardware.txt` 中添加对应条目：
    ```
    hardware:
        ...
@@ -183,6 +182,11 @@ enum Action {
 };
 ```
 然后在 `lib/control/execute/execute.cpp` 中实现对应逻辑。
+
+>硬件与动作添加新项目后都需要更新`data/actionAndHardware.txt`并**再次烧录文件**:
+```bash
+pio run -t uploadfs
+```
 
 ### 自定义 WebSocket 指令协议
 

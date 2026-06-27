@@ -7,3 +7,4 @@ hardware:
     RED_LED    #红色led,编号0
     GREEN_LED  #绿色led
     WHILE_LED  #白色
+    YELLOW_LED #黄色

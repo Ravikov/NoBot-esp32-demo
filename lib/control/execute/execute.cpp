@@ -1,9 +1,10 @@
 #include <Arduino.h>
 #include "execute.h"
 #include "fliker.h"
+#include "OLED/oled.h"
 
-Executer::Executer(int action, int hardware)
-    : _action(action),_hardware(hardware){}
+Executer::Executer(int action, int hardware, const char* msg)
+    : _action(action),_hardware(hardware),_msg(msg){}
 
 void Executer::run(){
     Serial.printf("收到动作指令,动作: ");
@@ -27,4 +28,5 @@ void Executer::run(){
     default:
         break;
     }
+    oledPrint("Got it!");
 }
