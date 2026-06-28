@@ -15,7 +15,10 @@ void setup() {
   // 初始化串口
   Serial.begin(115200);
 
-  oledPrint("starting...", 1);
+  oledInit();
+  oledClear();
+  oledPrint("NoBot", 2, 35, 25);
+  oledPrintTip("starting...");
 
   // 初始化文件系统
   FileOperate* f = new FileOperate("");
@@ -50,20 +53,14 @@ void setup() {
   pinMode(48, OUTPUT);
   digitalWrite(48, LOW);
 
-  oledPrint("Connecting WiFi...");
+  oledPrintTip("Connecting WiFi...");
   connectWifi(wifi_ssid, wifi_password, green_led);
   delay(300);
 
-  oledPrint("Connecting websocket...");
+  oledPrintTip("Connecting websocket...");
 }
 
 void loop() {
   wsRunner.webSocketRun();
-  if (!is_ready){
-    oledPrint("NoBot-Esp32 now ready");
-    delay(2000);
-    oledPrint("NoBot!", 3, 16, 18);
-    is_ready = true;
-  }
   delay(10);  // 仅延迟10ms，确保 loop() 高频调用
 }

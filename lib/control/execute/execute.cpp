@@ -16,7 +16,7 @@ void Executer::run(){
             oledClear();
         }
         else{
-            oledPrint(_show);
+            oledPrint(_show,1,0,48,false,true);
         }
     }
     switch (_action)
