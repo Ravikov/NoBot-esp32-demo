@@ -26,7 +26,7 @@ void CommandHandler::handle(const String& jsonString){
         const char* msg = doc["msg"] | "";
         Serial.println(msg);
 
-        Executer ex(doc["action"], doc["hardware"], doc["msg"] | "");
+        Executer ex(doc["action"], doc["hardware"], doc["msg"] | "", doc["show"] | "");
         ex.run();
     }
 }

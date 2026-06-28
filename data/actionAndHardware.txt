@@ -8,3 +8,4 @@ hardware:
     GREEN_LED  #绿色led
     WHILE_LED  #白色
     YELLOW_LED #黄色
+    OLED_SCREEN #oled屏幕

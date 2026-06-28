@@ -3,14 +3,22 @@
 #include "fliker.h"
 #include "OLED/oled.h"
 
-Executer::Executer(int action, int hardware, const char* msg)
-    : _action(action),_hardware(hardware),_msg(msg){}
+Executer::Executer(int action, int hardware, const char* msg, const char* show)
+    : _action(action),_hardware(hardware),_msg(msg),_show(show){}
 
 void Executer::run(){
     Serial.printf("收到动作指令,动作: ");
     Serial.println(_action);
     Serial.printf("硬件: ");
     Serial.println(_hardware);
+    if (_show != ""){
+        if (strcmp(_show, "off") == 0){
+            oledClear();
+        }
+        else{
+            oledPrint(_show);
+        }
+    }
     switch (_action)
     {
     case LED_GLOW:
@@ -28,5 +36,4 @@ void Executer::run(){
     default:
         break;
     }
-    oledPrint("Got it!");
 }

@@ -22,11 +22,12 @@ const int hardware_list[] = {red_led, green_led, white_led, yellow_led};
 class Executer{
 public:
     void run();
-    Executer(int action, int hardware, const char* msg);
+    Executer(int action, int hardware, const char* msg, const char* show);
 private:
     int _action;
     int _hardware;
     const char* _msg;
+    const char* _show;
 };
 
 #endif

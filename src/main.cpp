@@ -15,7 +15,7 @@ void setup() {
   // 初始化串口
   Serial.begin(115200);
 
-  oledPrint("starting...");
+  oledPrint("starting...", 1);
 
   // 初始化文件系统
   FileOperate* f = new FileOperate("");
@@ -61,6 +61,8 @@ void loop() {
   wsRunner.webSocketRun();
   if (!is_ready){
     oledPrint("NoBot-Esp32 now ready");
+    delay(2000);
+    oledPrint("NoBot!", 3, 16, 18);
     is_ready = true;
   }
   delay(10);  // 仅延迟10ms，确保 loop() 高频调用
