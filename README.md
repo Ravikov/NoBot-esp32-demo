@@ -100,12 +100,13 @@ pio run -t uploadfs
 ## WebSocket 协议
 
 ### 指令格式 (JSON)
-包含硬件与动作的编号,具体枚举信息在`lib/control/execute/execute.h`内
+包含硬件与动作的编号,以及显示信息,具体枚举信息在`lib/control/execute/execute.h`内
 
 ```json
 {
   "hardware": 0,
-  "action": 0
+  "action": 0,
+  "show":"off"
 }
 ```
 
