@@ -1,10 +1,13 @@
 #include "commandHandler.h"
 #include "execute/execute.h"
+#include <FreeRTOS.h>
 
-CommandHandler::CommandHandler() {}
+CommandHandler::CommandHandler(){}
+DynamicJsonDocument doc(1024);
+void start();
+SemaphoreHandle_t doneSemaphore = xSemaphoreCreateBinary();
 
 void CommandHandler::handle(const String& jsonString){
-    DynamicJsonDocument doc(1024);
     Serial.printf("json解析: ");
     Serial.println(jsonString);
     DeserializationError error = deserializeJson(doc, jsonString);
@@ -26,7 +29,29 @@ void CommandHandler::handle(const String& jsonString){
         const char* msg = doc["msg"] | "";
         Serial.println(msg);
 
-        Executer ex(doc["action"], doc["hardware"], doc["msg"] | "", doc["show"] | "");
-        ex.run();
+        doc["delay"] = doc.containsKey("delay") ? doc["delay"] : 0;
+        Serial.printf("延迟: ");
+        Serial.println((const char*)doc["delay"]);
+        start();
+        if (doc["delay"] != 0){
+            if (doc["delay"] == -1){
+                xSemaphoreTake(doneSemaphore, portMAX_DELAY);
+            }
+            else{
+                delay(1000*(int)doc["delay"]);
+            }
+        }
     }
+}
+
+void task(void* param){
+    Executer ex(doc["action"], doc["hardware"], doc["msg"] | "", doc["show"] | "");
+    ex.run();
+    xSemaphoreGive(doneSemaphore);
+    vTaskDelete(NULL);
+}
+
+void start(){
+    delay(50);
+    xTaskCreate(task,"run",4096,NULL,2,NULL);
 }
