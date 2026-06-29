@@ -29,7 +29,7 @@ void WsCls::_webSocketEvent(WStype_t type, uint8_t* payload, size_t length){
         case WStype_CONNECTED:
         {
             Serial.println("ws连接成功");
-            oledPrint("WS:Connected",1,0,8,false,false);
+            oledPrint("WS:Connected",1,0,10,false,false);
             flicker_many_time(green_led, 500, 3);
             _is_connecting = false;
             // 连接建立后再发消息
@@ -85,7 +85,7 @@ void WsCls::_webSocketEvent(WStype_t type, uint8_t* payload, size_t length){
         case WStype_DISCONNECTED:
         {
             Serial.println("ws连接断开，尝试重连...");
-            oledPrint("WS:DisConnected",1,0,8,false,false);
+            oledPrint("WS:DisConnected",1,0,10,false,false);
             oledPrintTip("Waiting for ws.");
             flicker_many_time(red_led, 500, 3);
             _is_connecting = false;  // 允许下次重试
