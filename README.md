@@ -42,8 +42,8 @@ const int white_led = 17;
 const int yellow_led = 40;
 
 // WiFi 配置
-const char* wifi_ssid = "360WiFi-2CFF";
-const char* wifi_password = "123456789";
+const char* wifi_ssid = "你的wifi名称";
+const char* wifi_password = "你的wifi密码";
 
 // WebSocket 配置
 const char* ws_uri = "192.168.0.xxx";
