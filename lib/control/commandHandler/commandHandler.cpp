@@ -29,7 +29,7 @@ void CommandHandler::handle(const String& jsonString){
         const char* msg = doc["msg"] | "";
         Serial.println(msg);
 
-        doc["delay"] = doc.containsKey("delay") ? doc["delay"] : 0;
+        doc["delay"] = doc.containsKey("delay") ? doc["delay"] : -1;
         Serial.printf("延迟: ");
         Serial.println((const char*)doc["delay"]);
         start();
@@ -45,7 +45,7 @@ void CommandHandler::handle(const String& jsonString){
 }
 
 void task(void* param){
-    Executer ex(doc["action"], doc["hardware"], doc["msg"] | "", doc["show"] | "");
+    Executer ex(doc);
     ex.run();
     xSemaphoreGive(doneSemaphore);
     vTaskDelete(NULL);

@@ -16,6 +16,9 @@ extern const char* ws_uri;
 extern const int ws_port;
 extern const char* ws_path;
 
+// 舵机配置
+extern const int servo_pin;
+
 // lcd屏幕配置
 typedef struct
 {

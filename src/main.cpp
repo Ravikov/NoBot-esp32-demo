@@ -5,6 +5,7 @@
 #include "../lib/config.h"
 #include "fileOperate.h"
 #include "OLED/oled.h"
+#include "servo/servo.h"
 
 #include <SPIFFS.h>
 
@@ -19,6 +20,13 @@ void setup() {
   oledClear();
   oledPrint("NoBot", 2, 35, 25);
   oledPrintTip("starting...");
+  
+  servoInit();
+  for (int a;a<=180;a++){
+    servoRun(a);
+    delay(25);
+  }
+  servoRun(0);
 
   // 初始化文件系统
   FileOperate* f = new FileOperate("");

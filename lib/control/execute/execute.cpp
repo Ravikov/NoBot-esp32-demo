@@ -2,9 +2,15 @@
 #include "execute.h"
 #include "fliker.h"
 #include "OLED/oled.h"
+#include <ArduinoJson.h>
+#include "servo/servo.h"
 
-Executer::Executer(int action, int hardware, const char* msg, const char* show)
-    : _action(action),_hardware(hardware),_msg(msg),_show(show){}
+Executer::Executer(DynamicJsonDocument doc)
+    : _action(doc["action"]),
+    _hardware(doc["hardware"]),
+    _msg(doc["msg"] | ""),
+    _show(doc["show"] | ""),
+    _servo_angle(doc["angle"] | 0){}
 
 void Executer::run(){
     Serial.printf("收到动作指令,动作: ");
@@ -32,8 +38,14 @@ void Executer::run(){
     case LED_BLINK:
         flicker_many_time(hardware_list[_hardware], 300, 5);
         break;
+    case SERVO_RUN:
+        if (_servo_angle <= 180 && _servo_angle >= 0){
+            servoRun(_servo_angle);
+        }
+        break;
     
     default:
+        Serial.println("事件未匹配");
         break;
     }
 }

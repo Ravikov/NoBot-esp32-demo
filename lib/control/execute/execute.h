@@ -2,12 +2,14 @@
 #define EXECUTE_H
 
 #include "config.h"
+#include <ArduinoJson.h>
 
 // 在actionAndHardware.txt内写入action和hardware枚举内容 顺序须一致
 enum Action{
     LED_GLOW,
     LED_OUT,
-    LED_BLINK
+    LED_BLINK,
+    SERVO_RUN
 };
 
 // 当前顺序
@@ -22,12 +24,13 @@ const int hardware_list[] = {red_led, green_led, white_led, yellow_led};
 class Executer{
 public:
     void run();
-    Executer(int action, int hardware, const char* msg, const char* show);
+    Executer(DynamicJsonDocument doc);
 private:
     int _action;
     int _hardware;
     const char* _msg;
     const char* _show;
+    int _servo_angle;
 };
 
 #endif
